@@ -1662,9 +1662,11 @@ FILE *openfile(int a, const char *us)
 		fp = fopen(s, "a");
 		m = GT;	/* so can mix > and >> */
 	} else if (a == '|') {	/* output pipe */
-		fp = popen(s, "w");
+		FATAL("no pipes! %d", a);
+		// fp = popen(s, "w");
 	} else if (a == LE) {	/* input pipe */
-		fp = popen(s, "r");
+		FATAL("no pipes! %d", a);
+		// fp = popen(s, "r");
 	} else if (a == LT) {	/* getline <file */
 		fp = strcmp(s, "-") == 0 ? stdin : fopen(s, "r");	/* "-" is stdin */
 	} else	/* can't happen */
@@ -1701,7 +1703,8 @@ Cell *closefile(Node **a, int n)
 			if (ferror(files[i].fp))
 				WARNING( "i/o error occurred on %s", files[i].fname );
 			if (files[i].mode == '|' || files[i].mode == LE)
-				stat = pclose(files[i].fp);
+				FATAL("no pipes! %d", a);
+				// stat = pclose(files[i].fp);
 			else
 				stat = fclose(files[i].fp);
 			if (stat == EOF)
@@ -1727,7 +1730,8 @@ void closeall(void)
 			if (ferror(files[i].fp))
 				WARNING( "i/o error occurred on %s", files[i].fname );
 			if (files[i].mode == '|' || files[i].mode == LE)
-				stat = pclose(files[i].fp);
+				FATAL("no pipes! %d", files[i].mode);
+				// stat = pclose(files[i].fp);
 			else
 				stat = fclose(files[i].fp);
 			if (stat == EOF)

@@ -45,7 +45,10 @@ char	**CONVFMT;	/* format for conversions in getsval */
 Awkfloat *NF;		/* number of fields in current record */
 Awkfloat *NR;		/* number of current record */
 Awkfloat *FNR;		/* number of current record in current file */
+#if 0
+/* already defined in awk.h */
 char	**FILENAME;	/* current filename argument */
+#endif
 Awkfloat *ARGC;		/* number of arguments from command line */
 char	**SUBSEP;	/* subscript separator for a[i,j,k]; default \034 */
 Awkfloat *RSTART;	/* start of re matched with ~; origin 1 (!) */
@@ -374,7 +377,10 @@ static char *get_str_val(Cell *vp, char **fmt)        /* get string val of a Cel
 		if (freeable(vp))
 			xfree(vp->sval);
 		if (modf(vp->fval, &dtemp) == 0)	/* it's integral */
-			sprintf(s, "%.30g", vp->fval);
+			if (fabs(vp->fval) < 2147483648.0)
+				sprintf(s, "%ld", (long) vp->fval);
+			else
+				sprintf(s, "%.15g", vp->fval);
 		else
 			sprintf(s, *fmt, vp->fval);
 		vp->sval = tostring(s);

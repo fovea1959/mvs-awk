@@ -5,7 +5,6 @@ for f in \
 	lex.c \
 	lib.c \
 	main.c \
-	maketab.c \
 	parse.c \
 	proctab.c \
 	run.c \
@@ -20,7 +19,7 @@ done
 
 ld370 -xmit -o awk.out --blocksize 6144 --entry @@CRT0 -L/usr/lib/cc370/cc370/lib -lcc370rt -lc *.o
 #rm *.o
-#upload-ld370.py --dsn mvscus.linklib --xmit sed.out.xmit --out sed.out.jcl
+upload-ld370.py --dsn mvscus.linklib --xmit awk.out.xmit --out awk.out.jcl
 
-#ncat --send-only -w1 localhost 33506 < sed.out.jcl
+ncat --send-only -w1 localhost 33506 < awk.out.jcl
 

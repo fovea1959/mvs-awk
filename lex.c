@@ -44,9 +44,6 @@ typedef struct Keyword {
 } Keyword;
 
 Keyword keywords[] ={	/* keep sorted: binary searched */
-	{ "BEGIN",	XBEGIN,		XBEGIN },
-	{ "END",	XEND,		XEND },
-	{ "NF",		VARNF,		VARNF },
 	{ "atan2",	FATAN,		BLTIN },
 	{ "break",	BREAK,		BREAK },
 	{ "close",	CLOSE,		CLOSE },
@@ -87,6 +84,9 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "tolower",	FTOLOWER,	BLTIN },
 	{ "toupper",	FTOUPPER,	BLTIN },
 	{ "while",	WHILE,		WHILE },
+	{ "BEGIN",	XBEGIN,		XBEGIN },
+	{ "END",	XEND,		XEND },
+	{ "NF",		VARNF,		VARNF },
 };
 
 #define	RET(x)	{ if(dbg)printf("lex %s\n", tokname(x)); return(x); }
@@ -167,7 +167,7 @@ int	regexpr(void);
 int	sc	= 0;	/* 1 => return a } right now */
 int	reg	= 0;	/* 1 => return a REGEXPR now */
 
-int yylex(void)
+static int rawlex(void)
 {
 	int c;
 	static char *buf = 0;
@@ -352,6 +352,49 @@ int yylex(void)
 			RET(c);
 		}
 	}
+}
+
+static int to_ascii(int c)
+{
+    switch (c) {
+    case '{': return 0x7b;
+    case '}': return 0x7d;
+    case '(': return 0x28;
+    case ')': return 0x29;
+    case '[': return 0x5b;
+    case ']': return 0x5d;
+    case ';': return 0x3b;
+    case ',': return 0x2c;
+    case '$': return 0x24;
+    case '+': return 0x2b;
+    case '-': return 0x2d;
+    case '*': return 0x2a;
+    case '/': return 0x2f;
+    case '%': return 0x25;
+    case '^': return 0x5e;
+    case '!': return 0x21;
+    case '<': return 0x3c;
+    case '>': return 0x3e;
+    case '|': return 0x7c;
+    case '?': return 0x3f;
+    case ':': return 0x3a;
+    case '~': return 0x7e;
+    case '=': return 0x3d;
+    }
+    return c;
+}
+
+int yylex(void)
+{
+	int tok;
+
+	tok = rawlex();
+	if (tok > 0 && tok < 256)
+		tok = to_ascii(tok);
+#if EBCDIC_DEBUG
+	fprintf(stderr, "tok %x %d\n", tok, tok);
+#endif
+	return tok;
 }
 
 int string(void)
